@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Minimalist Header -->
+    <header class="header">
+      <div class="brand">
+        <h1 class="page-title">Attendance</h1>
+        <div class="status-indicator-group">
+          <span id="network-status" class="status-pill status-online">
+            <span class="status-dot"></span>
+            <span id="network-text">Online</span>
+          </span>
+          <span id="sync-status" class="status-pill status-synced">
+            <span id="sync-text">All synced</span>
+          </span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="btn-sync-all" class="btn-text" title="Sync pending entries">Sync</button>
+      </div>
+    </header>
+
+    <!-- Main Attendance Form -->
+    <main class="main-content">
+      <form id="attendance-form" novalidate>
+        <!-- Date Selector -->
+        <div class="form-row">
+          <div class="form-group date-group">
+            <label for="attendance-date" class="label-minimal">Date</label>
+            <div class="date-input-wrap">
+              <input type="date" id="attendance-date" required />
+              <button type="button" id="btn-set-today" class="btn-micro">Today</button>
+            </div>
+          </div>
+
+          <!-- Section Selector: A, B, C, D -->
+          <div class="form-group sections-group">
+            <label class="label-minimal">Section</label>
+            <div class="section-pills" role="radiogroup" aria-label="Sections">
+              <button type="button" class="section-pill" data-section="A">A</button>
+              <button type="button" class="section-pill" data-section="B">B</button>
+              <button type="button" class="section-pill" data-section="C">C</button>
+              <button type="button" class="section-pill" data-section="D">D</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roll Numbers Input -->
+        <div class="form-group roll-numbers-group">
+          <div class="label-row">
+            <label for="roll-numbers" class="label-minimal">Roll Numbers</label>
+            <span id="roll-count" class="count-tag">0 entries</span>
+          </div>
+          <textarea
+            id="roll-numbers"
+            rows="5"
+            spellcheck="false"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="submit" id="btn-submit" class="btn-primary">Save Attendance</button>
+          <button type="button" id="btn-reset" class="btn-secondary">Clear</button>
+          <span id="form-feedback" class="feedback-msg"></span>
+        </div>
+      </form>
+
+      <!-- Records Section (Minimalist Table / List) -->
+      <section class="records-section">
+        <div class="records-header">
+          <h2 class="records-title">History</h2>
+          <div class="records-actions">
+            <button type="button" id="btn-export-csv" class="btn-micro">Export CSV</button>
+            <button type="button" id="btn-clear-all" class="btn-micro btn-micro-danger">Clear Local</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="minimal-table" id="attendance-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Section</th>
+                <th>Roll Numbers</th>
+                <th class="text-right">Total</th>
+                <th class="text-center">Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="empty-state" class="empty-state hidden">No attendance records yet.</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- View Attendance Popup Modal -->
+  <div id="view-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-date">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 id="modal-date" class="modal-date"></h3>
+          <span id="modal-section" class="modal-section-badge"></span>
+        </div>
+        <div class="modal-header-actions">
+          <button type="button" id="btn-copy-attendance" class="btn-copy" title="Copy attendance">
+            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="copy-btn-text">Copy</span>
+          </button>
+          <button type="button" id="btn-close-modal" class="btn-icon" aria-label="Close popup">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-meta-row">
+          <span id="modal-total" class="modal-total-text"></span>
+          <span id="modal-status" class="table-badge badge-synced"></span>
+        </div>
+        <div class="modal-content-area">
+          <div id="modal-roll-numbers" class="modal-roll-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="env.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
